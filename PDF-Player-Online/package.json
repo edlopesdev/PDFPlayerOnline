@@ -1,0 +1,32 @@
+{
+  "name": "pdf-player-online",
+  "version": "1.0.0",
+  "description": "A web application for reading PDF files aloud using Text-to-Speech.",
+  "main": "src/js/app.js",
+  "scripts": {
+    "start": "live-server src",
+    "build": "tailwindcss build src/styles/tailwind.css -o src/styles/output.css"
+  },
+  "keywords": [
+    "pdf",
+    "text-to-speech",
+    "web",
+    "player",
+    "online"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "tailwindcss": "^2.2.19",
+    "live-server": "^1.2.1"
+  },
+  "devDependencies": {},
+  "homepage": "https://github.com/yourusername/pdf-player-online",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/pdf-player-online.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/pdf-player-online/issues"
+  }
+}
