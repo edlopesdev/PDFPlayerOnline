@@ -55,5 +55,7 @@ function formatTime(seconds) {
 }
 
 export function initializePlayer() {
-  // Placeholder para Player
+    // Logic to initialize the player, such as setting the total duration
+    totalDuration = 300; // Example: set total duration to 5 minutes
+    totalTime.textContent = formatTime(totalDuration);
 }

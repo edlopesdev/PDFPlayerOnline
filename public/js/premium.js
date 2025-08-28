@@ -50,6 +50,4 @@ async function initializePremiumFeatures(userId) {
 const userId = 'currentUserId'; // Replace with actual user ID logic
 initializePremiumFeatures(userId);
 
-export function initializePremium() {
-  // Placeholder para Premium
-}
+export function initializePremium() {}

@@ -53,6 +53,4 @@ function initSpeechSynthesis() {
 const tts = initSpeechSynthesis();
 export default tts;
 
-export function initializeTTS() {
-  // Placeholder para TTS
-}
+export function initializeTTS() {}

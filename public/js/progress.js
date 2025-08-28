@@ -16,5 +16,8 @@ export function clearProgress() {
 }
 
 export function initializeProgress() {
-  // Placeholder para Progress
+    // Set the initial progress to 0 if it doesn't exist in localStorage
+    if (localStorage.getItem(progressKey) === null) {
+        localStorage.setItem(progressKey, 0);
+    }
 }
