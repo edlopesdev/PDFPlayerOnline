@@ -7,168 +7,119 @@ import { initializeAds } from './ads.js';
 import { initializePremium } from './premium.js';
 
 // Estado global
-let pdfText = '';
-let chunks = [];
-let currentChunk = 0;
-let synth = window.speechSynthesis;
-let utterance = null;
+let pdfDoc = null;
+let currentPage = 1;
+let totalPages = 0;
 let isPlaying = false;
-let progressKey = '';
-let premium = localStorage.getItem('premium') === 'true';
+let speechRate = 1;
 
-// Elementos
 const pdfInput = document.getElementById('pdfInput');
 const startBtn = document.getElementById('startBtn');
 const player = document.getElementById('player');
 const playPauseBtn = document.getElementById('playPauseBtn');
 const prevBtn = document.getElementById('prevBtn');
 const nextBtn = document.getElementById('nextBtn');
-const progressBar = document.getElementById('progressBar');
 const elapsed = document.getElementById('elapsed');
 const total = document.getElementById('total');
-const adModal = document.getElementById('adModal');
-const closeAdBtn = document.getElementById('closeAdBtn');
-const premiumBtn = document.getElementById('premiumBtn');
+const progressBar = document.getElementById('progressBar');
 
-// Utilidades
-function formatTime(sec) {
-  const m = Math.floor(sec / 60).toString().padStart(2, '0');
-  const s = Math.floor(sec % 60).toString().padStart(2, '0');
-  return `${m}:${s}`;
-}
+// Adiciona seletor de velocidade ao player
+const speedDiv = document.createElement('div');
+speedDiv.className = "flex items-center justify-center gap-4 mt-6";
+speedDiv.innerHTML = `
+  <label for="speedSelect" class="text-cyan-300 font-semibold">Velocidade:</label>
+  <select id="speedSelect" class="bg-blue-900 text-white rounded-lg px-3 py-2 font-bold">
+    <option value="0.5">0.5x</option>
+    <option value="1" selected>1x</option>
+    <option value="1.25">1.25x</option>
+    <option value="1.5">1.5x</option>
+    <option value="1.75">1.75x</option>
+    <option value="2">2x</option>
+  </select>
+`;
+player.appendChild(speedDiv);
 
-// PDF Upload e extração
+const speedSelect = document.getElementById('speedSelect');
+speedSelect.addEventListener('change', (e) => {
+  speechRate = parseFloat(e.target.value);
+  if (isPlaying) {
+    window.speechSynthesis.cancel();
+    speakPage(currentPage);
+  }
+});
+
 pdfInput.addEventListener('change', async (e) => {
   const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = async function() {
-    const typedarray = new Uint8Array(this.result);
-    const pdf = await pdfjsLib.getDocument(typedarray).promise;
-    let text = '';
-    for (let i = 1; i <= pdf.numPages; i++) {
-      const page = await pdf.getPage(i);
-      const content = await page.getTextContent();
-      text += content.items.map(item => item.str).join(' ') + ' ';
-    }
-    pdfText = text.replace(/\s+/g, ' ').trim();
-    // Divida em chunks de ~400 caracteres para TTS
-    chunks = pdfText.match(/.{1,400}(\s|$)/g) || [];
-    currentChunk = 0;
-    progressKey = file.name + '_progress';
-    // Carrega progresso salvo
-    const saved = localStorage.getItem(progressKey);
-    if (saved) currentChunk = parseInt(saved, 10) || 0;
-    // Mostra propaganda se não for premium
-    if (!premium) {
-      adModal.classList.remove('hidden');
-    } else {
-      showPlayer();
-    }
-  };
-  reader.readAsArrayBuffer(file);
+  if (file) {
+    const arrayBuffer = await file.arrayBuffer();
+    pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    totalPages = pdfDoc.numPages;
+    currentPage = 1;
+    player.style.display = 'block';
+    updateProgress();
+    startBtn.disabled = false; // Habilita o botão após upload
+  }
 });
 
-// Propaganda
-closeAdBtn.onclick = () => {
-  adModal.classList.add('hidden');
-  showPlayer();
-};
-premiumBtn.onclick = () => {
-  // Simulação de compra premium
-  if (confirm('Comprar versão Premium por R$5,00?')) {
-    localStorage.setItem('premium', 'true');
-    premium = true;
-    adModal.classList.add('hidden');
-    showPlayer();
-    alert('Obrigado por apoiar! Você é Premium.');
-    // Aqui você pode integrar Stripe Checkout
+startBtn.addEventListener('click', () => {
+  if (pdfDoc) {
+    speakPage(currentPage);
   }
-};
+});
 
-// Player
-function showPlayer() {
-  player.classList.remove('hidden');
-  updatePlayer();
-}
-function updatePlayer() {
-  total.textContent = formatTime(chunks.length * 10); // Aproximação: 10s por chunk
-  elapsed.textContent = formatTime(currentChunk * 10);
-  progressBar.max = chunks.length - 1;
-  progressBar.value = currentChunk;
-}
-function speakChunk(idx) {
-  if (idx < 0 || idx >= chunks.length) return;
-  stopTTS();
-  utterance = new SpeechSynthesisUtterance(chunks[idx]);
-  utterance.lang = 'pt-BR';
-  utterance.rate = 1;
-  utterance.onend = () => {
+playPauseBtn.addEventListener('click', () => {
+  if (isPlaying) {
+    window.speechSynthesis.pause();
     isPlaying = false;
-    currentChunk++;
-    saveProgress();
-    updatePlayer();
-    if (currentChunk < chunks.length) {
-      speakChunk(currentChunk);
-    }
-  };
-  utterance.onerror = () => { isPlaying = false; };
-  synth.speak(utterance);
-  isPlaying = true;
-  updatePlayer();
-}
-function stopTTS() {
-  synth.cancel();
-  isPlaying = false;
-}
-function saveProgress() {
-  if (progressKey) localStorage.setItem(progressKey, currentChunk);
-}
-
-// Controles
-startBtn.onclick = () => {
-  if (chunks.length === 0) return;
-  currentChunk = currentChunk || 0;
-  speakChunk(currentChunk);
-  player.classList.remove('hidden');
-  updatePlayer();
-};
-playPauseBtn.onclick = () => {
-  if (!isPlaying) {
-    speakChunk(currentChunk);
+    playPauseBtn.textContent = '▶';
   } else {
-    stopTTS();
-  }
-};
-prevBtn.onclick = () => {
-  if (currentChunk > 0) {
-    currentChunk--;
-    saveProgress();
-    speakChunk(currentChunk);
-  }
-};
-nextBtn.onclick = () => {
-  if (currentChunk < chunks.length - 1) {
-    currentChunk++;
-    saveProgress();
-    speakChunk(currentChunk);
-  }
-};
-progressBar.oninput = (e) => {
-  currentChunk = parseInt(e.target.value, 10);
-  saveProgress();
-  speakChunk(currentChunk);
-};
-
-// Retomar progresso ao abrir
-window.addEventListener('DOMContentLoaded', () => {
-  if (pdfInput.files[0]) {
-    const file = pdfInput.files[0];
-    progressKey = file.name + '_progress';
-    const saved = localStorage.getItem(progressKey);
-    if (saved) currentChunk = parseInt(saved, 10) || 0;
+    window.speechSynthesis.resume();
+    isPlaying = true;
+    playPauseBtn.textContent = '⏸';
   }
 });
+
+prevBtn.addEventListener('click', () => {
+  if (currentPage > 1) {
+    window.speechSynthesis.cancel();
+    currentPage--;
+    speakPage(currentPage);
+  }
+});
+
+nextBtn.addEventListener('click', () => {
+  if (currentPage < totalPages) {
+    window.speechSynthesis.cancel();
+    currentPage++;
+    speakPage(currentPage);
+  }
+});
+
+function updateProgress() {
+  elapsed.textContent = String(currentPage).padStart(2, '0') + ':' + '00';
+  total.textContent = String(totalPages).padStart(2, '0') + ':' + '00';
+  progressBar.value = Math.round((currentPage / totalPages) * 100);
+}
+
+async function speakPage(pageNum) {
+  updateProgress();
+  const page = await pdfDoc.getPage(pageNum);
+  const textContent = await page.getTextContent();
+  const text = textContent.items.map(item => item.str).join(' ');
+  if (text.trim().length === 0) return;
+  const utter = new SpeechSynthesisUtterance(text);
+  utter.rate = speechRate;
+  utter.lang = 'pt-BR';
+  utter.onstart = () => {
+    isPlaying = true;
+    playPauseBtn.textContent = '⏸';
+  };
+  utter.onend = () => {
+    isPlaying = false;
+    playPauseBtn.textContent = '▶';
+  };
+  window.speechSynthesis.speak(utter);
+}
 
 // Initialize Text-to-Speech
 initializeTTS();
