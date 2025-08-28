@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PDF Player Online</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.2.67/pdf.min.js"></script>
+  <script>
+    function toggleTheme() {
+      document.documentElement.classList.toggle('dark');
+      localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+    }
+    window.onload = () => {
+      if (localStorage.getItem('theme') === 'light') {
+        document.documentElement.classList.remove('dark');
+      }
+    };
+  </script>
+</head>
+<body class="bg-gradient-to-br from-blue-900 via-blue-800 to-blue-950 min-h-screen text-gray-100 font-sans transition-colors duration-300">
+  <div class="flex flex-col items-center justify-center min-h-screen px-4">
+    <!-- Header -->
+    <header class="mb-8 text-center">
+      <h1 class="text-4xl font-extrabold text-cyan-300 drop-shadow-lg tracking-tight">PDF Player Online</h1>
+      <p class="mt-2 text-lg text-blue-200 font-medium">Ouça seus PDFs com facilidade e estilo</p>
+      <button onclick="toggleTheme()" class="mt-4 px-4 py-2 rounded-full bg-blue-800 hover:bg-cyan-500 transition-colors text-white shadow-lg font-semibold">
+        Alternar Tema
+      </button>
+    </header>
+
+    <!-- Upload PDF -->
+    <div class="bg-blue-800 rounded-2xl shadow-xl p-8 w-full max-w-md flex flex-col items-center border border-blue-900">
+      <label class="block mb-4 text-lg font-semibold text-cyan-300">Selecione um arquivo PDF</label>
+      <input type="file" id="pdfInput" accept="application/pdf" class="mb-6 w-full text-blue-200 file:bg-cyan-500 file:text-white file:rounded-lg file:px-4 file:py-2 file:border-none file:shadow-md"/>
+      <button id="startBtn" class="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-500 text-white font-bold rounded-xl shadow-lg hover:from-cyan-400 hover:to-blue-400 transition-colors">
+        Iniciar Leitura
+      </button>
+    </div>
+
+    <!-- Propaganda Modal -->
+    <div id="adModal" class="fixed inset-0 bg-black/80 flex items-center justify-center z-50 hidden">
+      <div class="bg-blue-800 rounded-2xl p-8 shadow-2xl w-full max-w-lg text-center border border-blue-900">
+        <h2 class="text-2xl font-bold text-cyan-300 mb-4">Publicidade</h2>
+        <div class="mb-6">
+          <div class="bg-blue-900 rounded-lg h-40 flex items-center justify-center text-blue-200 font-bold text-xl">
+            [Vídeo de anúncio aqui]
+          </div>
+        </div>
+        <button id="closeAdBtn" class="px-6 py-2 bg-cyan-500 text-white rounded-full font-semibold shadow hover:bg-cyan-400 transition-colors">
+          Fechar anúncio
+        </button>
+        <div class="mt-4 text-sm text-blue-200">
+          <span>Não quer anúncios?</span>
+          <button id="premiumBtn" class="ml-2 underline text-cyan-300 hover:text-cyan-400">Seja Premium</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Player -->
+    <div id="player" class="mt-10 w-full max-w-xl bg-blue-800 rounded-2xl shadow-xl p-8 hidden border border-blue-900">
+      <div class="flex items-center justify-between mb-4">
+        <span id="elapsed" class="text-cyan-300 font-mono text-lg">00:00</span>
+        <span id="total" class="text-blue-200 font-mono text-lg">00:00</span>
+      </div>
+      <input type="range" id="progressBar" min="0" max="100" value="0" class="w-full accent-cyan-500 mb-6"/>
+      <div class="flex items-center justify-center gap-6">
+        <button id="prevBtn" class="p-3 rounded-xl bg-blue-900 hover:bg-cyan-500 text-white shadow-lg text-xl font-bold">
+          ◀
+        </button>
+        <button id="playPauseBtn" class="p-4 rounded-xl bg-cyan-500 hover:bg-blue-500 text-white shadow-lg text-2xl font-bold">
+          ▶
+        </button>
+        <button id="nextBtn" class="p-3 rounded-xl bg-blue-900 hover:bg-cyan-500 text-white shadow-lg text-xl font-bold">
+          ▶
+        </button>
+      </div>
+    </div>
+  </div>
+  <script src="js/app.js"></script>
+</body>
+</html>
