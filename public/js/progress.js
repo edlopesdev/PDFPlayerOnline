@@ -14,3 +14,9 @@ export function getProgress() {
 export function clearProgress() {
     localStorage.removeItem(progressKey);
 }
+
+export function initializeProgress() {
+  // Função de progresso do player PDF
+  // Implemente aqui se quiser atualizar barra de progresso, tempo, etc.
+  // Por enquanto, está vazio para evitar erro de importação.
+}
