@@ -5,6 +5,7 @@ import { initializePlayer } from './player.js';
 import { initializeProgress } from './progress.js';
 import { initializeAds } from './ads.js';
 import { initializePremium } from './premium.js';
+import * as pdfjsLib from './pdf.mjs.js';
 
 // Estado global
 let pdfDoc = null;
@@ -58,6 +59,7 @@ pdfInput.addEventListener('change', async (e) => {
     player.style.display = 'block';
     updateProgress();
     startBtn.disabled = false; // Habilita o botão após upload
+    alert('PDF carregado com sucesso!');
   }
 });
 

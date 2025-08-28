@@ -1,3 +1,18 @@
+import * as pdfjsLib from './js/pdf.mjs.js';
+
+// Add event listener to handle PDF file input
+const pdfInput = document.getElementById('pdfInput');
+let pdfDoc = null;
+
+pdfInput.addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (file) {
+    const arrayBuffer = await file.arrayBuffer();
+    pdfDoc = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    // ...restante do código...
+  }
+});
+
 /**
  * @licstart The following is the entire license notice for the
  * JavaScript code in this page
