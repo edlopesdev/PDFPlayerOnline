@@ -25,5 +25,9 @@ function afterReading() {
     hideAd();
 }
 
+// Placeholder para Ads
+export function initializeAds() {
+}
+
 // Export functions if needed for other modules
 export { beforeReading, afterReading };

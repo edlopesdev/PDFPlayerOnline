@@ -53,3 +53,7 @@ function formatTime(seconds) {
     const secs = seconds % 60;
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
 }
+
+export function initializePlayer() {
+  // Placeholder para Player
+}

@@ -49,3 +49,7 @@ async function initializePremiumFeatures(userId) {
 // Call initializePremiumFeatures with the user's ID when the app loads
 const userId = 'currentUserId'; // Replace with actual user ID logic
 initializePremiumFeatures(userId);
+
+export function initializePremium() {
+  // Placeholder para Premium
+}
